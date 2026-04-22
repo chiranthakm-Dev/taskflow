@@ -10,6 +10,7 @@ import (
 	"github.com/chiranthakm-Dev/taskflow/internal/queue"
 	"github.com/chiranthakm-Dev/taskflow/internal/store"
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Handler struct {
@@ -141,9 +142,10 @@ func (h *Handler) handleRetryJob(w http.ResponseWriter, r *http.Request, id stri
 }
 
 func (h *Handler) HandleMetrics(w http.ResponseWriter, r *http.Request) {
-	// TODO: Implement Prometheus metrics
-	w.Header().Set("Content-Type", "text/plain")
-	w.Write([]byte("# TODO: Prometheus metrics\n"))
+	// Prometheus metrics handler
+	http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		promhttp.Handler().ServeHTTP(w, r)
+	})(w, r)
 }
 
 func (h *Handler) queueName(p internal.Priority) string {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/chiranthakm-Dev/taskflow/internal"
+	"github.com/chiranthakm-Dev/taskflow/internal/metrics"
 	"github.com/chiranthakm-Dev/taskflow/internal/store"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
@@ -58,7 +59,15 @@ func (r *Router) Enqueue(ctx context.Context, job *internal.Job) error {
 		Body:         mustMarshal(job),
 	}
 
-	return r.channel.Publish("", queueName, true, false, msg)
+	err := r.channel.Publish("", queueName, true, false, msg)
+	if err != nil {
+		return err
+	}
+
+	// Record metrics
+	metrics.JobsEnqueuedTotal.WithLabelValues(job.Type, string(job.Priority)).Inc()
+
+	return nil
 }
 
 func (r *Router) queueForPriority(p internal.Priority) string {

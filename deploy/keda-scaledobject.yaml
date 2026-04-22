@@ -1,0 +1,24 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: taskflow-worker-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: taskflow-worker
+  minReplicaCount: 1
+  maxReplicaCount: 20
+  cooldownPeriod: 30
+  triggers:
+    - type: rabbitmq
+      metadata:
+        host: "amqp://guest:guest@rabbitmq:5672"
+        queueName: taskflow.high
+        mode: QueueLength
+        value: "10"    # scale up when >10 jobs per replica
+    - type: rabbitmq
+      metadata:
+        host: "amqp://guest:guest@rabbitmq:5672"
+        queueName: taskflow.normal
+        mode: QueueLength
+        value: "25"

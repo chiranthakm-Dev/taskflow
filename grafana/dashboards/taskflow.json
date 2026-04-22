@@ -1,0 +1,68 @@
+{
+  "dashboard": {
+    "title": "Taskflow Job Queue",
+    "tags": ["taskflow", "jobs", "queue"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "title": "Jobs Enqueued",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(taskflow_jobs_enqueued_total[5m])",
+            "legendFormat": "{{type}}/{{priority}}"
+          }
+        ]
+      },
+      {
+        "title": "Jobs Completed vs Failed",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(taskflow_jobs_completed_total[5m])",
+            "legendFormat": "completed {{type}}"
+          },
+          {
+            "expr": "rate(taskflow_jobs_failed_total[5m])",
+            "legendFormat": "failed {{type}}"
+          }
+        ]
+      },
+      {
+        "title": "Queue Depth",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "taskflow_queue_depth",
+            "legendFormat": "{{queue}}"
+          }
+        ]
+      },
+      {
+        "title": "Processing Duration",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "taskflow_worker_processing_duration_seconds",
+            "legendFormat": "{{type}}"
+          }
+        ]
+      },
+      {
+        "title": "Circuit Breaker State",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "taskflow_circuit_breaker_state",
+            "legendFormat": "{{type}}"
+          }
+        ]
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

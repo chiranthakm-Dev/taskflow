@@ -3,6 +3,8 @@ package worker
 import (
 	"sync"
 	"time"
+
+	"github.com/chiranthakm-Dev/taskflow/internal/metrics"
 )
 
 type State int
@@ -58,7 +60,7 @@ func (cb *CircuitBreaker) RecordFailure() {
 	cb.lastFailure = time.Now()
 	if cb.failures >= cb.threshold {
 		cb.state = StateOpen
-		// TODO: metrics
+		metrics.CircuitBreakerState.WithLabelValues(cb.jobType).Set(1)
 	}
 }
 
@@ -67,5 +69,5 @@ func (cb *CircuitBreaker) RecordSuccess() {
 	defer cb.mu.Unlock()
 	cb.failures = 0
 	cb.state = StateClosed
-	// TODO: metrics
+	metrics.CircuitBreakerState.WithLabelValues(cb.jobType).Set(0)
 }

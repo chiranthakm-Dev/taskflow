@@ -30,6 +30,8 @@ func main() {
 
 	// Register handlers
 	w.RegisterHandler("send_email", &handlers.SendEmailHandler{})
+	w.RegisterHandler("generate_report", &handlers.GenerateReportHandler{})
+	w.RegisterHandler("process_payment", &handlers.ProcessPaymentHandler{})
 
 	log.Println("Starting worker")
 	w.Start()

@@ -73,6 +73,9 @@ This project builds it right from the start — a production-grade task orchestr
 git clone https://github.com/yourusername/taskflow.git
 cd taskflow
 
+# Create database schema
+docker run --rm -v $(pwd)/schema.sql:/schema.sql postgres:16 psql postgresql://taskflow:taskflow@localhost/taskflow -f /schema.sql
+
 # Start RabbitMQ, Postgres, and the API + worker locally
 docker compose up --build
 

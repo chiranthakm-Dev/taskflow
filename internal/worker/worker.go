@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/chiranthakm-Dev/taskflow/internal"
+	"github.com/chiranthakm-Dev/taskflow/internal/metrics"
 	"github.com/chiranthakm-Dev/taskflow/internal/store"
 	"github.com/streadway/amqp"
 )
@@ -101,8 +102,11 @@ func (w *Worker) processJob(ctx context.Context, job *internal.Job) error {
 		job.LastError = err.Error()
 
 		if job.Attempts >= job.MaxRetries {
+			metrics.JobsDeadTotal.WithLabelValues(job.Type).Inc()
 			return w.deadLetter(ctx, job)
 		}
+
+		metrics.JobsFailedTotal.WithLabelValues(job.Type).Inc()
 
 		delay := time.Duration(math.Pow(2, float64(job.Attempts))) * time.Second
 		return w.requeueWithDelay(ctx, job, delay)
@@ -112,6 +116,11 @@ func (w *Worker) processJob(ctx context.Context, job *internal.Job) error {
 	job.Status = internal.StatusCompleted
 	job.CompletedAt = &start
 	job.ProcessingTimeMs = duration.Milliseconds()
+
+	// Record metrics
+	metrics.JobsCompletedTotal.WithLabelValues(job.Type).Inc()
+	metrics.ProcessingDuration.WithLabelValues(job.Type).Observe(duration.Seconds())
+
 	return w.store.UpdateJob(ctx, job)
 }
 

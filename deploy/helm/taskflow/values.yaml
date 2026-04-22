@@ -1,0 +1,38 @@
+# Default values for taskflow
+replicaCount: 1
+
+image:
+  api:
+    repository: taskflow/api
+    tag: latest
+  worker:
+    repository: taskflow/worker
+    tag: latest
+
+service:
+  type: ClusterIP
+  port: 8080
+
+postgresql:
+  enabled: true
+  auth:
+    database: taskflow
+    username: taskflow
+    password: taskflow
+
+rabbitmq:
+  enabled: true
+  auth:
+    username: guest
+    password: guest
+
+keda:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 20
+  cooldownPeriod: 30
+  triggers:
+    - queueName: taskflow.high
+      queueLength: 10
+    - queueName: taskflow.normal
+      queueLength: 25
